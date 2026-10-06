@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 class UserCreate(BaseModel):
+    name: str
     email: EmailStr
     password: str = Field(min_length=8, max_length=50)
 
@@ -15,6 +16,7 @@ class UserLogin(BaseModel):
 
 class UserResponse(BaseModel):
     id: UUID
+    name: str
     email: EmailStr
     is_active: bool
     created_at: datetime
