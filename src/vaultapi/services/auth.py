@@ -1,9 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException, status
+from datetime import datetime, timedelta, timezone
 from src.vaultapi.models.user import User
+from src.vaultapi.models.refresh_token import RefreshToken
 from src.vaultapi.schemas.user import UserCreate
-from src.vaultapi.core.security import get_password_hash, verify_password
+from src.vaultapi.core.security import (
+    get_password_hash,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+)
 
 
 async def register_user(db: AsyncSession, user_data: UserCreate) -> User:
@@ -39,3 +46,22 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
         )
 
     return user
+
+
+async def generate_and_save_tokens(db: AsyncSession, user: User) -> dict:
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+
+    db_refresh = RefreshToken(
+        token=refresh_token,
+        user_id=user.id,
+        expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+    )
+    db.add(db_refresh)
+    await db.commit()
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
