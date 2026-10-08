@@ -9,6 +9,10 @@ from src.vaultapi.services.auth import (
     authenticate_user,
     generate_and_save_tokens,
 )
+
+from src.vaultapi.models.user import User
+from src.vaultapi.core.deps import get_current_user
+
 from src.vaultapi.core.security import decode_token
 from src.vaultapi.models.refresh_token import RefreshToken
 
@@ -97,3 +101,8 @@ async def refresh_access_token(
     )
 
     return {"access_token": tokens["access_token"], "token_type": tokens["token_type"]}
+
+
+@router.get("/me", response_model=UserResponse)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user

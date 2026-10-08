@@ -49,8 +49,8 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
 
 
 async def generate_and_save_tokens(db: AsyncSession, user: User) -> dict:
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    access_token = create_access_token(data={"sub": str(user.id), "type": "access"})
+    refresh_token = create_refresh_token(data={"sub": str(user.id), "type": "refresh"})
 
     db_refresh = RefreshToken(
         token=refresh_token,
