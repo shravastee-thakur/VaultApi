@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.vaultapi.api.v1.endpoints import auth
+from src.vaultapi.api.v1.endpoints import auth, documents
 
 from src.vaultapi.db.session import engine
 from src.vaultapi.models.base import Base
@@ -14,7 +14,6 @@ async def lifespan(app: FastAPI):
         # run_sync is required because create_all is a synchronous SQLAlchemy method
         await conn.run_sync(Base.metadata.create_all)
     yield
-    # Anything after yield would run on shutdown
 
 
 app = FastAPI(lifespan=lifespan)
@@ -28,3 +27,4 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(documents.router, prefix="/api/v1")
