@@ -13,6 +13,7 @@ from src.vaultapi.services.document import (
     get_document,
     share_document,
     update_document,
+    get_all_documents,
 )
 from src.vaultapi.core.deps import get_current_user
 from src.vaultapi.models.user import User
@@ -68,3 +69,12 @@ async def update_existing_document(
     return await update_document(
         db, str(document_id), str(current_user.id), document_data.content
     )
+
+
+@router.get("/", response_model=list[DocumentResponse])
+async def list_documents(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    documents = await get_all_documents(db, str(current_user.id))
+    return documents

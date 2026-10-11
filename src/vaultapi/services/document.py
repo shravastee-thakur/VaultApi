@@ -71,6 +71,11 @@ async def get_document(
     )
 
 
+async def get_all_documents(db: AsyncSession, owner_id: str) -> list[Document]:
+    result = await db.execute(select(Document).where(Document.owner_id == owner_id))
+    return result.scalars().all()
+
+
 async def share_document(
     db: AsyncSession, document_id: str, owner_id: str, target_email: str, role: str
 ) -> DocumentShareResponse:
